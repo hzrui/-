@@ -22,7 +22,7 @@ class Users(BaseModel):
     phone = models.CharField(verbose_name='手机号码',
                              max_length=11,
                              validators=[
-                                 validators.RegexValidator(r'^1[3-9]\d{9}$',"手机号码格式错误!")
+                                 validators.RegexValidator(r'^1[3-9]\d{9}$', "手机号码格式错误!")
                              ],
                              )
     password = models.CharField(verbose_name='密码',
