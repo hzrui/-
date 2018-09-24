@@ -17,7 +17,7 @@
 
 {% block content %}
     <div style="height: 3rem;" ></div>
-    <form action="" method="post" novalidate>
+    <form action="" method="post" novalidate enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.phone }}
          <p class="errornote">{{ form.errors.phone.0 }}</p>
