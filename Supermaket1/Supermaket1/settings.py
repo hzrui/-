@@ -37,7 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'sup_uesr.apps.SupUesrConfig',
+    'sup_uesr.apps.SupUesrConfig', #用户模块
+    'sup_goods.apps.SupGoodsConfig',#商品模块
+    'ckeditor', #添加ckeditor富文本编辑器
+    'ckeditor_uploader'# 添加ckeditor富文本编辑器文件上传部件
 ]
 
 MIDDLEWARE = [
@@ -125,6 +128,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
+# STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 
 
@@ -153,3 +157,14 @@ SESSION_CACHE_ALIAS = "default"
 # ACCESS_KEY_ID/ACCESS_KEY_SECRET 根据实际申请的账号信息进行替换
 ACCESS_KEY_ID = "LTAI20TmdmMQE1VD"
 ACCESS_KEY_SECRET = "Ka9nuuR2aL86huSggTXq1ZpqyeTywr"
+
+
+#配置ckeditor
+CKEDITOR_UPLOAD_PATH = "uploads/"  #配置上传目录
+
+# 编辑器样式配置
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',
+    },
+}

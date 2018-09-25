@@ -1,6 +1,7 @@
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, reverse
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 
 from db.base_view import BaseVerifyView
 from sup_uesr.forms import RegisterForm, LoginForm
@@ -94,6 +95,20 @@ class InfoView(BaseVerifyView):
         user.save()
         # return HttpResponse('ok')
         return redirect(reverse('sup:个人中心'))
+
+@csrf_exempt
+def upload_head(request):
+    if request.method == "POST":
+        # 获取用户id
+        user_id = request.session.get("ID")
+        # 获取用户对象
+        user = Users.objects.get(pk=user_id)
+        # 保存图片
+        user.head = request.FILES['file']  # 通过键获取对应的文件
+        user.save()
+        return JsonResponse({"error": 0})
+    else:
+        return JsonResponse({"error": 1})
 
 
 class LogoutView(View):

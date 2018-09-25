@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import url
 
-from sup_uesr.views import RegisterView, LoginView, MemberView, SendCodeView, InfoView
+from sup_uesr.views import RegisterView, LoginView, MemberView, SendCodeView, InfoView, upload_head
 
 urlpatterns = [
     url(r'^reg/$', RegisterView.as_view(), name="注册"),  # 注册
@@ -23,4 +23,5 @@ urlpatterns = [
     url(r'^member/$', MemberView.as_view(), name="个人中心"),  # 个人中心
     url(r'^info/$', InfoView.as_view(), name="个人资料"),  # 个人资料
     url(r'^Code/$', SendCodeView.as_view(), name="发送验证码"),
+    url(r'^head/$', upload_head, name="头像上传"),
 ]
