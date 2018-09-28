@@ -193,3 +193,7 @@ class ActivityZoneGoods(BaseModel):
     goods_sku = models.ForeignKey(to="GoodsSKU",
                                   verbose_name="专区商品SKU_ID",
                                   )
+
+    class Meta:
+        verbose_name = "活动专区商品"
+        verbose_name_plural = verbose_name

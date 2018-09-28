@@ -1,0 +1,215 @@
+{% extends 'public/base.html' %}
+{% load static %}
+
+{% block meta_title %}
+    超市
+{% endblock %}
+
+{% block header %}
+    <header data-am-widget="header" class="am-header am-header-default sq-head ">
+        <div class="am-header-left am-header-nav">
+            <a href="{% url 'goods:首页' %}" class="">
+{#            <a href="javascript:history.back()" class="">#}
+                <i class="am-icon-chevron-left"></i>
+            </a>
+        </div>
+        <form method="get" action="/search/">
+            <div class="cate-search">
+                <input type="text" name="q" class="cate-input" placeholder="请输入您要的搜索的产品关键词"/>
+                <input type="submit" value="" class="cate-btn"/>
+            </div>
+        </form>
+    </header>
+    <div style="height: 49px;"></div>
+{% endblock %}
+
+{% block meta_css %}
+
+    <style>
+        .shop-list-mid .tit a {
+            color: #909090;
+            font-size: 1.4rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            white-space: normal;
+            text-overflow: ellipsis;
+        }
+
+        .list-price {
+            background: url({% if order == 2 %}{% static 'images/order-bot.png' %}{% elif order == 3 %}{% static 'images/order-top.png' %}{% else %}{% static 'images/order.png' %}{% endif  %}) no-repeat right center;
+            padding-right: 20px;
+            font-style: normal;
+        }
+
+    </style>
+{% endblock %}
+
+{% block content %}
+    <ul class="list-nav">
+        <li {% if order == 0 %}class="current"{% endif %}><a href="{% url 'goods:列表' cate_id 0 %}">综合</a></li>
+        <li {% if order == 1 %}class="current"{% endif %}><a href="{% url 'goods:列表' cate_id 1 %}">销量</a></li>
+        <li {% if order == 2  or order == 3 %}class="current"{% endif %}>
+            <a href="{% url 'goods:列表' cate_id 2 %}" id="price" ><i class="list-price">价格</i></a>
+        </li>
+        <li {% if order == 4 %}class="current"{% endif %}><a href="{% url 'goods:列表' cate_id 4 %}">新品</a></li>
+    </ul>
+    <div class="content-list">
+        <div class="list-left">
+            {% for category in categorys %}
+                <li {% if category.pk == cate_id %} class="current"{% endif %}>
+                    <a href="{% url 'goods:列表' category.pk order %}">{{ category.cate_name }}</a>
+                </li>
+            {% endfor %}
+
+
+        </div>
+        <div class="list-right">
+            <ul class="list-pro">
+                {% for goods in goods_skus %}
+                    <li>
+                        <a href="{% url 'goods:详情' goods.pk %}"><img src=" {{ MEDIA_URL }}{{ goods.logo }}"
+                                                                     class="list-pic"/></a>
+                        <div class="shop-list-mid" style="width: 65%;">
+                            <div class="tit"><a href="{% url 'goods:详情' goods.pk %}">
+                                {{ goods.goods_spu.spu_name }}&emsp;{{ goods.sku_name }}</a></div>
+                            <div class="am-gallery-desc">￥{{ goods.price }}</div>
+                            <p>销量：{{ goods.sale_num }}{{ goods.unit.name }}</p>
+                        </div>
+                        <div class="list-cart">
+                            <div class="d-stock ">
+                                <a class="decrease">-</a>
+                                <input sku_id="{{ goods.pk }}" id="num" readonly="" class="text_box" name="" type="text" value="0">
+                                <a class="increase">+</a>
+                            </div>
+                        </div>
+                        <!--<a href="" class="list-cart"><img src="images/cart.png" width="30"/></a>-->
+                    </li>
+                {% empty %}
+                    <li>该分类下的商品还在路上!</li>
+                {% endfor %}
+
+
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+
+
+{% block footer %}
+    <!--底部-->
+    <div style="height: 55px;"></div>
+    <div class="fix-bot">
+        <div class="fix-bot-cart"><i id="total_count">{{ total }}</i></div>
+        <a href="tureorder.html" class="list-js">去结算</a>
+        <a href="tureorder.html" class="list-jsk">一键快购</a>
+    </div>
+{% endblock %}
+
+
+
+{% block footer_js %}
+    <script>
+        //购物数量加减
+        $(function () {
+            //购物车数量加减
+            $('.increase').click(function () {
+                var self = $(this);
+                var current_num = parseInt(self.siblings('input').val());
+
+                //通过ajax请求后台,添加数据成功
+                var sku_id = self.siblings('input').attr('sku_id');
+                var data = {
+                    'sku_id': sku_id,
+                    'count': 1,
+                    "csrfmiddlewaretoken": "{{ csrf_token }}",
+                };
+                $.post("{% url 'cart:添加购物车' %}", data, function (data) {
+                    if (data.error == '0') {
+                        current_num += 1;
+                        if (current_num > 0) {
+                            self.siblings(".decrease").fadeIn();
+                            self.siblings(".text_box").fadeIn();
+                        }
+                        self.siblings('input').val(current_num);
+
+                        //修改购物车总数量
+                        $("#total_count").text(data.total)
+                    } else if (data.error == '1') {
+
+                        // 没有登录, 跳转到登录页面进行, 通过js代码实现跳转
+                        // 提示, 让用户选择是否登录
+                        if (confirm(data.msg)) {
+                            // js 实现跳转的方法
+                            location.href = "{% url 'sup:登录' %}?next={% url 'goods:列表' cate_id order %}"
+                        }
+                    } else {
+                        alert(data.msg);
+                    }
+                });
+                //添加数据库成功 才使用
+                /*
+                current_num += 1;
+                if (current_num > 0) {
+                    self.siblings(".decrease").fadeIn();
+                    self.siblings(".text_box").fadeIn();
+                }
+                self.siblings('input').val(current_num);
+                */
+                {#update_item(self.siblings('input').data('item-id'));#}
+            });
+
+
+            //减少
+           $('.decrease').click(function () {
+                var self = $(this);
+                var current_num = parseInt(self.siblings('input').val());
+                if (current_num > 0) {
+                    //发送ajax请求, 购物车数量减1
+                    var sku_id = self.siblings('input').attr('sku_id');
+                    var data = {
+                        "sku_id": sku_id,
+                        "csrfmiddlewaretoken": "{{ csrf_token }}"
+                    };
+                    $.post("{% url 'cart:减少购物车' %}", data, function (data) {
+                        if (data.error == "0") {
+                            current_num -= 1;
+                            if (current_num < 1) {
+                                self.fadeOut();
+                                self.siblings(".text_box").fadeOut();
+                            }
+                            self.siblings('input').val(current_num);
+                            // 修改购物车总数量
+                            $("#total_count").text(data.total)
+                        } else if (data.error == "1") {
+                            // 没有登录, 跳转到登录页面进行, 通过js代码实现跳转
+                            if (confirm(data.msg)) {
+                                // js 实现跳转的方法
+                                location.href = "{% url 'sup:登录' %}?next={% url 'goods:列表' cate_id order %}"
+                            }
+                        } else {
+                            alert(data.msg);
+                        }
+                    });
+                }
+            });
+
+
+
+
+
+            if ("{{ order }}" == 2){
+                $("#price").attr('href','{% url 'goods:列表' cate_id 3 %}')
+
+            }else if("{{ order }}" == 3){
+             $("#price").attr('href','{% url 'goods:列表' cate_id  2 %}')
+            }
+	});
+
+    </script>
+{% endblock %}
+
+
+

@@ -16,9 +16,18 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 
+from sup_goods.views import IndexView
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^sup/', include('sup_uesr.urls',namespace='sup')),
     #上传部件自动调用上传地址
     url(r'^ckeditor/', include('ckeditor_uploader.urls')),
+    # 全文搜索框架
+    url(r'^search/', include('haystack.urls')),
+    #应用app
+    url(r'^sup/', include('sup_uesr.urls',namespace='sup')),
+    url(r'^goods/', include('sup_goods.urls', namespace='goods')),
+    url(r'^car/', include('sup_cart.urls', namespace='cart')),
+    # 商城首页
+    url(r'^$', IndexView.as_view(), name='商城首页'),
 ]

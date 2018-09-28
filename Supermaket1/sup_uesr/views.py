@@ -13,7 +13,7 @@ class RegisterView(View):
     # 注册功能
     def get(self, request):
         form = RegisterForm()
-        return render(request, "reg.html", {'form': form})
+        return render(request, "sup_user/reg.html", {'form': form})
 
     def post(self, request):
         session_code = request.session.get('random_code')
@@ -25,16 +25,16 @@ class RegisterView(View):
         if form.is_valid():
             form.save()
             # 注册成功跳转到个人页面
-            return redirect(reverse("sup:个人中心"))
+            return redirect(reverse("sup:登录"))
         # 失败回到注册页面
-        return render(request, 'reg.html', {'form': form})
+        return render(request, 'sup_user/reg.html', {'form': form})
 
 
 class LoginView(View):
     # 登录功能
     def get(self, request):
         form = LoginForm()
-        return render(request, 'login.html', {'form': form})
+        return render(request, 'sup_user/login.html', {'form': form})
 
     def post(self, request):
         form = LoginForm(request.POST)
@@ -47,8 +47,11 @@ class LoginView(View):
             request.session.set_expiry(0)
 
             # 跳转到用户中心
+            #有办法获取到跳转的位置,没有必要跳转到个人中心
+            if request.GET.get('next', None):
+                return redirect(request.GET.get('next'))
             return redirect(reverse('sup:个人中心'))
-        return render(request, 'login.html', {'form': form})
+        return render(request, 'sup_user/login.html', {'form': form})
 
 
 class MemberView(BaseVerifyView):
@@ -58,7 +61,7 @@ class MemberView(BaseVerifyView):
         context = {
             'phone': phone
         }
-        return render(request, "member.html", context)
+        return render(request, "sup_user/member.html", context)
 
     def post(self, request):
         pass
@@ -84,7 +87,7 @@ class InfoView(BaseVerifyView):
         context = {
             "user": user
         }
-        return render(request, "infor.html", context)
+        return render(request, "sup_user/infor.html", context)
 
     def post(self, request):
         id = request.session.get('ID')
@@ -122,7 +125,7 @@ class LogoutView(View):
 
 @login
 def info(request):
-    return render(request, 'infor.html')
+    return render(request, 'sup_user/infor.html')
 
 
 # 发送验证码
